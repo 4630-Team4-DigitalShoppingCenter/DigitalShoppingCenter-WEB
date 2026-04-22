@@ -1,27 +1,40 @@
-import data from "./data";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+type Product = {
+  id: number;
+  name: string;
+  description: string;
+  brand: string;
+  price: number;
+  ratings: [];
+};
+
+const emptyProducts: Product[] = [];
 
 function Products() {
+  const [products, setProducts] = useState<Product[]>(emptyProducts);
+
+  useEffect(() => {
+    axios
+      .get<Product[]>("http://localhost:5047/catalog", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => setProducts(response.data))
+      .catch((error) => console.log(error));
+  }, []);
 
   return (
     <div className="content">
       <ul className="products">
-        {data.products.map((product, idx) => (
-          <li key={`${product.name}-${idx}`}>
-            <div className="product">
-              <img
-                className="product-image"
-                src={product.imageUrl}
-                alt={product.name}
-              />
-              <div className="product-name">
-                <a href="/product">{product.name}</a>
-              </div>
-              <div className="product-brand">{product.brand}</div>
-              <div className="product-price">${product.price}</div>
-              <div className="product-rating">
-                {product.rating} Stars ({product.numberOfReviews} reviews)
-              </div>
-            </div>
+        {products.map((product) => (
+          <li key={product.id} className="product">
+            <div className="product-name">{product.name}</div>
+            <div className="product-brand">{product.brand}</div>
+            <div>{product.description}</div>
+            <div className="product-price">${product.price}</div>
           </li>
         ))}
       </ul>
@@ -30,4 +43,3 @@ function Products() {
 }
 
 export default Products;
-
